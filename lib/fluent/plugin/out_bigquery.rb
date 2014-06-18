@@ -61,6 +61,8 @@ module Fluent
     config_param :table, :string, :default => nil
     config_param :tables, :string, :default => nil
 
+    config_param :table_utc_suffix_format, :string, :default => nil
+
     config_param :schema_path, :string, :default => nil
     config_param :field_string,  :string, :default => nil
     config_param :field_integer, :string, :default => nil
@@ -147,6 +149,11 @@ module Fluent
       end
 
       @tablelist = @tables ? @tables.split(',') : [@table]
+
+      if @table_utc_suffix_format
+        timef = TimeFormatter.new(@table_utc_suffix_format, false)
+        @tablelist.map!{|t| "#{t}.#{timef.format(Time.now)}" }
+      end
 
       @fields = RecordSchema.new('record')
       if @schema_path

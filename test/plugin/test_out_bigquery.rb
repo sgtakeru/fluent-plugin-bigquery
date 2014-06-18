@@ -50,10 +50,16 @@ class BigQueryOutputTest < Test::Unit::TestCase
     driver = create_driver
     assert_equal driver.instance.table, 'foo'
     assert_nil driver.instance.tables
+    assert_nil driver.instance.table_utc_suffix_format
 
     driver = create_driver(CONFIG.sub(/\btable\s+.*$/,  'tables foo,bar'))
     assert_nil driver.instance.table
     assert_equal driver.instance.tables, 'foo,bar'
+    assert_nil driver.instance.table_utc_suffix_format
+
+    conf = CONFIG + "table_utc_suffix_format %Y%m"
+    driver = create_driver(conf)
+    assert_equal driver.instance.table_utc_suffix_format, '%Y%m'
 
     assert_raise(Fluent::ConfigError, "'table' or 'tables' must be specified, and both are invalid") {
       create_driver(CONFIG + "tables foo,bar")
